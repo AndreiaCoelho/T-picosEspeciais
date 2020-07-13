@@ -1,0 +1,85 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\noticias;
+
+class NoticiaController extends Controller
+{
+    
+public function cadastrarpage(){
+
+return view('adm.cadastronoticia');
+
+}
+
+public function cadastrarnoticia(Request $request){
+
+    $extensao = strtolower(substr($_FILES['anexo'] ['name'], -4));    
+     $novo_nome = md5(time()) . $extensao;
+     $diretorio ="public";
+     move_uploaded_file($_FILES['anexo']['tmp_name'], $diretorio.$novo_nome);
+
+$noticiaobj = new noticias();
+$noticiaobj->nameimg = "public". $novo_nome;
+$noticiaobj->titulo = $request->input('titulo');
+$noticiaobj->noticia = $request->input('noticia');
+
+$noticiaobj->save();
+
+return redirect('/consultarnoticias');
+
+}
+
+public function showNoticias(){
+
+	$noticiasobj = new noticias();
+	$noticiasobj = noticias::all();
+	return view('adm.shownoticias',['noticiasobj' => $noticiasobj]);
+
+}
+
+public function noticiasNaHome(){
+
+	$noticiasobj = new noticias();
+	$noticiasobj = noticias::all();
+	return view('deslogado.index',['noticiasobj' => $noticiasobj]);
+
+}
+
+public function deletarNoticia($id,$anexo){
+
+	unlink('../public/'.$anexo);
+	$noticiasobj = new noticias();
+	$noticiasobj = noticias::destroy($id);
+	return redirect('/consultarnoticias');
+}
+
+public function alterarDadosNoticia($id){
+
+	$noticiasobj = new noticias();
+	$noticiasobj = noticias::find($id);
+	return view('adm.alterardadosdenoticia')->with('noticiasobj',$noticiasobj);
+}
+
+public function alterandoDadosNoticias(Request $request,$id){
+
+	$noticiasobj = new noticias();
+	$noticiasobj = noticias::find($id);
+
+	   $extensao = strtolower(substr($_FILES['anexo'] ['name'], -4));    
+     $novo_nome = md5(time()) . $extensao;
+     $diretorio ="public";
+     move_uploaded_file($_FILES['anexo']['tmp_name'], $diretorio.$novo_nome);
+
+	$noticiasobj->nameimg = "public".$novo_nome;
+	$noticiasobj->titulo = $request->input('titulo');
+	$noticiasobj->noticia = $request->input('noticia');
+	$update = $noticiasobj->update();
+
+	return redirect('/consultarnoticias');
+
+}
+
+}
