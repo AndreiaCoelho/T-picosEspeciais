@@ -1,0 +1,178 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Usuario;
+use Illuminate\Support\Facades\DB;
+use App\noticias;
+
+class UsuarioController extends Controller
+{
+    
+public function cadastrarUsuario(Request $request){
+
+$usuarioobj = new Usuario();
+
+$usuarioobj->cpf = $request->input('cpf');
+$usuarioobj->nome= $request->input('nome');
+$usuarioobj->email = $request->input('email');
+$usuarioobj->senha = $request->input('senha');
+
+$usuarioobj->save();
+
+echo "<script>window.alert('Usuário cadastrado com sucesso!')</script>
+";
+echo "<script>window.location.href = '/login';</script>";
+//return redirect('/login');
+
+}
+
+public function validandoLogin(Request $request){
+
+	$email = $request->input('email');
+	$senha = $request->input('senha');
+
+	$user = DB::table('usuarios')->where('email',$email)->where('senha',$senha)->count();
+
+if($user >= 1){
+
+	$userid = DB::table('usuarios')->where('email',$email)->value('id');
+
+	session_start();
+
+    $_SESSION['id'] = $userid;
+
+	$noticiasobj = new noticias();
+	$noticiasobj = noticias::all();
+
+	return view('logado.index',['noticiasobj' => $noticiasobj])->with('iduser',$_SESSION['id']);
+
+	//echo "<script>window.location.href = '/logadohome';</script>";
+
+}else{
+	echo "<script>alert('Senha ou e-amil incorretos.')</script>";
+	echo "<script>window.location.href = '/login';</script>";
+}
+
+
+}
+
+
+public function alterarDadosConta(Request $request){
+
+	$id = $request->input('id');
+	$usuarioobj2 = new Usuario();
+	$usuarioobj2 = Usuario::find($id);
+
+	$usuarioobj2->cpf = $request->input('cpf');
+	$usuarioobj2->nome = $request->input('nome');
+	$usuarioobj2->email = $request->input('email');
+	$usuarioobj2->senha = $request->input('senha');
+
+	$usuarioobj2->update();
+
+	$usuarioobj = new Usuario();
+	$usuarioobj = Usuario::find($id);
+	return view('logado.alterardados',['usuarioobj' => $usuarioobj])->with('iduser',$id);
+/*
+ 	echo "<script>window.alert('Conta encerrada!')</script>
+	";
+	echo "<script>window.location.href = '';</script>";
+	*/
+
+
+}
+
+public function apagarConta($id){
+
+ $usuarioobj = new Usuario();
+ $usuarioobj = Usuario::destroy($id);
+
+ echo "<script>window.alert('Conta encerrada!')</script>
+";
+echo "<script>window.location.href = '/home';</script>";
+			
+}
+
+public function logadoHome(){
+
+ 	$noticiasobj = new noticias();
+	$noticiasobj = noticias::all();
+
+	session_start();
+
+    $userid = $_SESSION['id'];
+
+	return view('logado.index',['noticiasobj' => $noticiasobj])->with('userid',$userid);
+
+}
+
+public function logadoHomeId($id){
+
+	$noticiasobj = new noticias();
+	$noticiasobj = noticias::all();
+
+return view('logado.index',['noticiasobj' => $noticiasobj])->with('iduser',$id);
+
+}
+
+public function alterarDadosForm($id){
+
+	$usuarioobj = new Usuario();
+	$usuarioobj = Usuario::find($id);
+
+return view('logado.alterardados')->with('iduser',$id)->with('usuarioobj',$usuarioobj);
+
+
+}
+
+public function showUsers(){
+
+	$usuarioobj = new Usuario();
+	$usuarioobj = Usuario::all();
+	return view('adm.showusuarios',['usuarioobj' => $usuarioobj]);
+
+}
+
+public function admAltform($id){
+
+	$usuarioobj = new Usuario();
+	$usuarioobj = Usuario::find($id);
+	return view('adm.admalterardadosuser',['usuarioobj' => $usuarioobj]);
+
+}
+
+public function admAlterarDadosConta(Request $request){
+
+	$id = $request->input('id');
+
+	$usuarioobj2 = new Usuario();
+	$usuarioobj2 = Usuario::find($id);
+
+	$usuarioobj2->cpf = $request->input('cpf');
+	$usuarioobj2->nome = $request->input('nome');
+	$usuarioobj2->email = $request->input('email');
+	$usuarioobj2->senha = $request->input('senha');
+
+	$usuarioobj2->update();
+
+	return redirect('/consultarusuarios');
+
+/*
+ 	echo "<script>window.alert('Conta encerrada!')</script>
+	";
+	echo "<script>window.location.href = '';</script>";
+	*/
+
+
+}
+
+public function admExcluirConta($id){
+
+	$usuarioobj = new Usuario();
+ 	$usuarioobj = Usuario::destroy($id);
+	echo "<script>window.location.href = '/consultarusuarios';</script>";
+}
+
+}
