@@ -1,0 +1,113 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Meetup;
+use App\Usuario;
+
+class MeetupController extends Controller
+{
+    
+public function meetupHome(){
+
+return view('deslogado.meetup');
+
+}   
+
+public function cadastroMeetup(){
+
+    return view('adm.cadastromeetups');
+
+    }
+
+public function cadastrandoMeetup(Request $request){
+
+	$meetupobj = new Meetup();
+
+	$meetupobj->nome = $request->input('nome');
+	$meetupobj->tipo= $request->input('tipo');
+	$meetupobj->organizador = $request->input('organizador');
+	$meetupobj->tema = $request->input('tema');
+	$meetupobj->palestrantes = $request->input('palestrantes');
+	$meetupobj->data = $request->input('data');
+	$meetupobj->hora = $request->input('hora');
+	$meetupobj->local = $request->input('local');
+
+	$meetupobj->save();
+
+	return redirect('/consultarmeetups');
+
+}    
+
+public function consultarMeetups(){
+
+	$meetupobj = new Meetup();
+	$meetupobj = Meetup::all();
+	return view('adm.showmeetups',['meetupobj' => $meetupobj]);
+
+}
+
+public function excluirMeetup($id){
+
+	$meetupobj = new Meetup();
+	$meetupobj = Meetup::destroy($id);
+	return redirect('/consultarmeetups');	
+
+}
+
+public function alterarDadosMeetup($id){
+
+	$meetupobj = new Meetup();
+	$meetupobj = Meetup::find($id);
+	return view('adm.alterardadosmeetups')->with('meetupobj',$meetupobj);
+
+}
+
+//'nome','tipo','organizador','tema','palestrantes','data','hora','local']
+
+public function alterandoDadosMeetup(Request $request,$id){
+
+	$meetupobj = new Meetup();
+	$meetupobj = Meetup::find($id);
+
+	$meetupobj->nome = $request->input('nome');
+	$meetupobj->tipo= $request->input('tipo');
+	$meetupobj->organizador = $request->input('organizador');
+	$meetupobj->tema = $request->input('tema');
+	$meetupobj->palestrantes = $request->input('palestrantes');
+	$meetupobj->data = $request->input('data');
+	$meetupobj->hora = $request->input('hora');
+	$meetupobj->local = $request->input('local');
+
+	$meetupobj->update();
+
+	return redirect('/consultarmeetups'); 
+
+}
+
+public function meetupsDeslogado(){
+
+	$meetupobj = new Meetup();
+	$meetupobj = Meetup::all();
+	return view('deslogado.meetup',['meetupobj' => $meetupobj]);
+
+}
+
+public function logadoMeetup(){
+
+	$meetupobj = new Meetup();
+	$meetupobj = Meetup::all();
+	return view('logado.meetup',['meetupobj' => $meetupobj]);
+
+}
+
+public function logadoMeetupId($id){
+
+	$meetupobj = new Meetup();
+	$meetupobj = Meetup::all();
+	return view('logado.meetup',['meetupobj' => $meetupobj])->with('iduser',$id);
+
+}
+
+}
